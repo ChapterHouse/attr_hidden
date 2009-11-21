@@ -1,0 +1,40 @@
+AttrHidden
+===========
+
+While attr_accessible and attr_protected can prevent changes to attributes during mass assignment they do not address the need to prevent
+some attributes not being exposed to the requester. With html requests this is usally not a problem as the page is written to not include
+the private data. However, with the increasing use of REST and clients consuming xml and json data, the need to be able to easily protect
+this data increases.
+
+This plugin addresses this need to hide outgoing attributes when records are being serialized for REST responses. Traditionally this has
+been done in the controller on an individual method basis. This is time consuming and increases the likelyhood that mistakes will be made.
+Instead of relying on the controller to add protection, this plugin takes its cues from attr_protected and attr_accessible and moves the
+responsibility down into the model itself.
+
+Example
+=======
+
+Consider a model that yields the following with to_xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<item>
+  <id type="integer">298486374</id>
+  <name>Shiny Item</name>
+  <internal-comment>Bob is Bald</internal-comment>
+  <internal-rating type="integer">7</internal-rating>
+</item>
+
+By adding either: 
+  attr_hidden :internal-comment, :internal-rating
+
+or
+
+  attr_visible :id, :name
+ 
+to the model the to_xml would render
+
+<?xml version="1.0" encoding="UTF-8"?>
+<item>
+  <id type="integer">298486374</id>
+  <name>Shiny Item</name>
+</item>
