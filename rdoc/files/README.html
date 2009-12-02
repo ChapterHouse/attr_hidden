@@ -56,7 +56,7 @@
     </tr>
     <tr class="top-aligned-row">
       <td><strong>Last Update:</strong></td>
-      <td>Sat Nov 21 15:40:58 -0600 2009</td>
+      <td>Wed Dec 02 12:49:41 -0600 2009</td>
     </tr>
     </table>
   </div>
@@ -89,6 +89,13 @@ increases the likelyhood that mistakes will be made. Instead of relying on
 the controller to add protection, this plugin takes its cues from
 attr_protected and attr_accessible and moves the responsibility down into
 the model itself.
+</p>
+<p>
+Methods can also be included in the serialization by using serialize_method
+</p>
+<p>
+Additionally, these restrictions and included methods will continue to be
+maintained even during associational includes during serialization.
 </p>
 <p>
 Example

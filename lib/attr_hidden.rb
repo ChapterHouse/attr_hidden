@@ -1,43 +1,7 @@
 module AttrHidden #:nodoc:
 
-  ATTR_HIDDEN_ALTERNATIVE = { :hidden => [:except, :attr_hidden_attributes, :without_attr_hidden, :without_attr_visible],
-                              :visible => [:only, :attr_visible_attributes, :without_attr_visible, :without_attr_hidden]}
-
   def self.included(base) #:nodoc:
     base.extend(ClassMethods)
-  end
-
-  def to_xml_with_attr_hidden(options = {}, &block) #:nodoc:
-    to_xml_without_attr_hidden(set_attr_hidden_options(options, :hidden), &block)
-  end
-
-  def to_json_with_attr_hidden(options = {}, &block) #:nodoc:
-    to_json_without_attr_hidden(set_attr_hidden_options(options, :hidden), &block)
-  end
-
-  def as_json_with_attr_hidden(options = {}, &block) #:nodoc:
-    as_json_without_attr_hidden(set_attr_hidden_options(options, :hidden), &block)
-  end
-
-  def to_xml_with_attr_visible(options = {}, &block) #:nodoc:
-    to_xml_without_attr_visible(set_attr_hidden_options(options, :visible), &block)
-  end
-
-  def to_json_with_attr_visible(options = {}, &block) #:nodoc:
-    to_json_without_attr_visible(set_attr_hidden_options(options, :visible), &block)
-  end
-
-  def as_json_with_attr_visible(options = {}, &block) #:nodoc:
-    as_json_without_attr_visible(set_attr_hidden_options(options, :visible), &block)
-  end
-
-private
-
-  def set_attr_hidden_options(options, chain) #:nodoc:
-    option, retriever, skip, other_skip = ATTR_HIDDEN_ALTERNATIVE[chain]
-    options.delete other_skip
-    options[option] = options.delete(option){[]}.concat self.class.send(retriever) unless options.delete(skip)
-    options
   end
 
   # While attr_accessible and attr_protected can prevent changes to attributes during mass assignment they do not address the need to prevent
@@ -76,33 +40,58 @@ private
   #       <name>Shiny Item</name>
   #     </item>
   #
+  # Methods can also be included in the serialization by using serialize_method
+  #
+  # Additionally, these restrictions and included methods will continue to be maintained even during associational includes during serialization.
   module ClassMethods
 
-    @@attr_visible_attributes = Hash.new { |hash, key| hash[key] = [] }
     @@attr_hidden_attributes = Hash.new { |hash, key| hash[key] = [] }
-
-    def attr_visible_attributes #:nodoc:
-      @@attr_visible_attributes[name]
-    end
-
+    @@attr_hidden_methods = Hash.new { |hash, key| hash[key] = [] }
+    @@attr_hidden_style = Hash.new
+    
     def attr_hidden_attributes #:nodoc:
       @@attr_hidden_attributes[name]
+    end
+
+    def attr_hidden_methods #:nodoc:
+      @@attr_hidden_methods[name]
+    end
+
+    def attr_hidden_style #:nodoc:
+      @@attr_hidden_style[name]
+    end
+
+    def attr_hidden_style=(style) #:nodoc:
+      @@attr_hidden_style[name] = style
     end
 
     # Mark a set of attributes to be hidden from serialization.
     #
     # This has the effect of automatically using <code>:except => attributes</code> in all serializations.
     def attr_hidden(*attributes)
+      if attr_hidden_style != :hidden
+        attr_hidden_attributes.clear
+        self.attr_hidden_style = :hidden
+      end
       attr_hidden_attributes.concat attributes
-      set_attr_hidden_method_chains :attr_hidden
     end
 
     # Mark a set of attributes to be the only ones visible during serialization.
     #
     # This has the effect of automatically using <code>:only => attributes</code> in all serializations.
     def attr_visible(*attributes)
-      attr_visible_attributes.concat attributes
-      set_attr_hidden_method_chains :attr_visible
+      if attr_hidden_style != :visible
+        attr_hidden_attributes.clear
+        self.attr_hidden_style = :visible
+      end
+      attr_hidden_attributes.concat attributes
+    end
+
+    # Mark a set of methods to always be included during serialization.
+    #
+    # This has the effect of automatically using <code>:methods => method_names</code> in all serializations.
+    def serialize_method(*method_names)
+      attr_hidden_methods.concat method_names
     end
 
     # Mark a set of attributes as nonexistent to the public.
@@ -125,13 +114,34 @@ private
     alias_method :attr_protected_and_hidden, :attr_nonexistent
     alias_method :attr_visible_and_accessible, :attr_available
     alias_method :attr_accessible_and_visible, :attr_available
-
-private
-    def set_attr_hidden_method_chains(chain) #:nodoc:
-      alias_method_chain :to_xml, chain unless method_defined?("to_xml_without_#{chain}".to_sym)
-      alias_method_chain :to_json, chain unless method_defined?("to_json_without_#{chain}".to_sym)
-      alias_method_chain :as_json, chain unless method_defined?("as_json_without_#{chain}".to_sym)
+  
+    def set_attr_hidden_options(options) #:nodoc:
+      unless options.delete(:without_attr_hidden)
+        option = case attr_hidden_style
+                 when :hidden then :except
+                 when :visible then :only
+                 end
+             
+        options[option] = (options.delete(option) || []).concat attr_hidden_attributes if option
+        options[:methods] = options.delete(:methods){[]}.concat attr_hidden_methods unless attr_hidden_methods.blank?
+      end
+      options
     end
   
+  end
+end
+
+module ActiveRecord #:nodoc:
+  module Serialization #:nodoc:
+    class Serializer #:nodoc:
+
+      def initialize_with_attr_hidden(record, options = nil)
+        options = record.class.set_attr_hidden_options(options ? options.dup : {})
+        initialize_without_attr_hidden record, options
+      end
+
+      alias_method_chain :initialize, :attr_hidden unless method_defined?(:initialize_without_attr_hidden)
+
+    end
   end
 end

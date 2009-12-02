@@ -124,6 +124,14 @@ to the model, the to_xml would render
       &lt;name&gt;Shiny Item&lt;/name&gt;
     &lt;/item&gt;
 </pre>
+<p>
+Methods can also be included in the serialization by using <a
+href="ClassMethods.html#M000003">serialize_method</a>
+</p>
+<p>
+Additionally, these restrictions and included methods will continue to be
+maintained even during associational includes during serialization.
+</p>
 
     </div>
 
@@ -134,14 +142,15 @@ to the model, the to_xml would render
       <h3 class="section-bar">Methods</h3>
 
       <div class="name-list">
-      <a href="#M000008">attr_accessible_and_visible</a>&nbsp;&nbsp;
-      <a href="#M000004">attr_available</a>&nbsp;&nbsp;
+      <a href="#M000009">attr_accessible_and_visible</a>&nbsp;&nbsp;
+      <a href="#M000005">attr_available</a>&nbsp;&nbsp;
       <a href="#M000001">attr_hidden</a>&nbsp;&nbsp;
-      <a href="#M000005">attr_hidden_and_protected</a>&nbsp;&nbsp;
-      <a href="#M000003">attr_nonexistent</a>&nbsp;&nbsp;
-      <a href="#M000006">attr_protected_and_hidden</a>&nbsp;&nbsp;
+      <a href="#M000006">attr_hidden_and_protected</a>&nbsp;&nbsp;
+      <a href="#M000004">attr_nonexistent</a>&nbsp;&nbsp;
+      <a href="#M000007">attr_protected_and_hidden</a>&nbsp;&nbsp;
       <a href="#M000002">attr_visible</a>&nbsp;&nbsp;
-      <a href="#M000007">attr_visible_and_accessible</a>&nbsp;&nbsp;
+      <a href="#M000008">attr_visible_and_accessible</a>&nbsp;&nbsp;
+      <a href="#M000003">serialize_method</a>&nbsp;&nbsp;
       </div>
     </div>
 
@@ -163,8 +172,8 @@ to the model, the to_xml would render
     <div id="methods">
       <h3 class="section-bar">Public Instance methods</h3>
 
-      <div id="method-M000008" class="method-detail">
-        <a name="M000008"></a>
+      <div id="method-M000009" class="method-detail">
+        <a name="M000009"></a>
 
         <div class="method-heading">
           <span class="method-name">attr_accessible_and_visible</span><span class="method-args">(*attributes)</span>
@@ -172,16 +181,16 @@ to the model, the to_xml would render
       
         <div class="method-description">
           <p>
-Alias for <a href="ClassMethods.html#M000004">attr_available</a>
+Alias for <a href="ClassMethods.html#M000005">attr_available</a>
 </p>
         </div>
       </div>
 
-      <div id="method-M000004" class="method-detail">
-        <a name="M000004"></a>
+      <div id="method-M000005" class="method-detail">
+        <a name="M000005"></a>
 
         <div class="method-heading">
-          <a href="#M000004" class="method-signature">
+          <a href="#M000005" class="method-signature">
           <span class="method-name">attr_available</span><span class="method-args">(*attributes)</span>
           </a>
         </div>
@@ -195,14 +204,14 @@ They are the only ones that can be mass assigned and the only ones to show
 up in serializations.
 </p>
           <p><a class="source-toggle" href="#"
-            onclick="toggleCode('M000004-source');return false;">[Source]</a></p>
-          <div class="method-source-code" id="M000004-source">
+            onclick="toggleCode('M000005-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000005-source">
 <pre>
-     <span class="ruby-comment cmt"># File lib/attr_hidden.rb, line 119</span>
-119:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">attr_available</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">attributes</span>)
-120:       <span class="ruby-identifier">attr_visible</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">attributes</span>)
-121:       <span class="ruby-identifier">attr_accessible</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">attributes</span>)
-122:     <span class="ruby-keyword kw">end</span>
+     <span class="ruby-comment cmt"># File lib/attr_hidden.rb, line 108</span>
+108:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">attr_available</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">attributes</span>)
+109:       <span class="ruby-identifier">attr_visible</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">attributes</span>)
+110:       <span class="ruby-identifier">attr_accessible</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">attributes</span>)
+111:     <span class="ruby-keyword kw">end</span>
 </pre>
           </div>
         </div>
@@ -229,18 +238,21 @@ attributes</tt> in all serializations.
             onclick="toggleCode('M000001-source');return false;">[Source]</a></p>
           <div class="method-source-code" id="M000001-source">
 <pre>
-    <span class="ruby-comment cmt"># File lib/attr_hidden.rb, line 95</span>
-95:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">attr_hidden</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">attributes</span>)
-96:       <span class="ruby-identifier">attr_hidden_attributes</span>.<span class="ruby-identifier">concat</span> <span class="ruby-identifier">attributes</span>
-97:       <span class="ruby-identifier">set_attr_hidden_method_chains</span> <span class="ruby-identifier">:attr_hidden</span>
-98:     <span class="ruby-keyword kw">end</span>
+    <span class="ruby-comment cmt"># File lib/attr_hidden.rb, line 71</span>
+71:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">attr_hidden</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">attributes</span>)
+72:       <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">attr_hidden_style</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">:hidden</span>
+73:         <span class="ruby-identifier">attr_hidden_attributes</span>.<span class="ruby-identifier">clear</span>
+74:         <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">attr_hidden_style</span> = <span class="ruby-identifier">:hidden</span>
+75:       <span class="ruby-keyword kw">end</span>
+76:       <span class="ruby-identifier">attr_hidden_attributes</span>.<span class="ruby-identifier">concat</span> <span class="ruby-identifier">attributes</span>
+77:     <span class="ruby-keyword kw">end</span>
 </pre>
           </div>
         </div>
       </div>
 
-      <div id="method-M000005" class="method-detail">
-        <a name="M000005"></a>
+      <div id="method-M000006" class="method-detail">
+        <a name="M000006"></a>
 
         <div class="method-heading">
           <span class="method-name">attr_hidden_and_protected</span><span class="method-args">(*attributes)</span>
@@ -248,16 +260,16 @@ attributes</tt> in all serializations.
       
         <div class="method-description">
           <p>
-Alias for <a href="ClassMethods.html#M000003">attr_nonexistent</a>
+Alias for <a href="ClassMethods.html#M000004">attr_nonexistent</a>
 </p>
         </div>
       </div>
 
-      <div id="method-M000003" class="method-detail">
-        <a name="M000003"></a>
+      <div id="method-M000004" class="method-detail">
+        <a name="M000004"></a>
 
         <div class="method-heading">
-          <a href="#M000003" class="method-signature">
+          <a href="#M000004" class="method-signature">
           <span class="method-name">attr_nonexistent</span><span class="method-args">(*attributes)</span>
           </a>
         </div>
@@ -270,21 +282,21 @@ Mark a set of attributes as nonexistent to the public.
 They cannot be mass-assigned and will not show up in serializations.
 </p>
           <p><a class="source-toggle" href="#"
-            onclick="toggleCode('M000003-source');return false;">[Source]</a></p>
-          <div class="method-source-code" id="M000003-source">
+            onclick="toggleCode('M000004-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000004-source">
 <pre>
-     <span class="ruby-comment cmt"># File lib/attr_hidden.rb, line 111</span>
-111:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">attr_nonexistent</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">attributes</span>)
-112:       <span class="ruby-identifier">attr_hidden</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">attributes</span>)
-113:       <span class="ruby-identifier">attr_protected</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">attributes</span>)
-114:     <span class="ruby-keyword kw">end</span>
+     <span class="ruby-comment cmt"># File lib/attr_hidden.rb, line 100</span>
+100:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">attr_nonexistent</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">attributes</span>)
+101:       <span class="ruby-identifier">attr_hidden</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">attributes</span>)
+102:       <span class="ruby-identifier">attr_protected</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">attributes</span>)
+103:     <span class="ruby-keyword kw">end</span>
 </pre>
           </div>
         </div>
       </div>
 
-      <div id="method-M000006" class="method-detail">
-        <a name="M000006"></a>
+      <div id="method-M000007" class="method-detail">
+        <a name="M000007"></a>
 
         <div class="method-heading">
           <span class="method-name">attr_protected_and_hidden</span><span class="method-args">(*attributes)</span>
@@ -292,7 +304,7 @@ They cannot be mass-assigned and will not show up in serializations.
       
         <div class="method-description">
           <p>
-Alias for <a href="ClassMethods.html#M000003">attr_nonexistent</a>
+Alias for <a href="ClassMethods.html#M000004">attr_nonexistent</a>
 </p>
         </div>
       </div>
@@ -318,18 +330,21 @@ in all serializations.
             onclick="toggleCode('M000002-source');return false;">[Source]</a></p>
           <div class="method-source-code" id="M000002-source">
 <pre>
-     <span class="ruby-comment cmt"># File lib/attr_hidden.rb, line 103</span>
-103:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">attr_visible</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">attributes</span>)
-104:       <span class="ruby-identifier">attr_visible_attributes</span>.<span class="ruby-identifier">concat</span> <span class="ruby-identifier">attributes</span>
-105:       <span class="ruby-identifier">set_attr_hidden_method_chains</span> <span class="ruby-identifier">:attr_visible</span>
-106:     <span class="ruby-keyword kw">end</span>
+    <span class="ruby-comment cmt"># File lib/attr_hidden.rb, line 82</span>
+82:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">attr_visible</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">attributes</span>)
+83:       <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">attr_hidden_style</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">:visible</span>
+84:         <span class="ruby-identifier">attr_hidden_attributes</span>.<span class="ruby-identifier">clear</span>
+85:         <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">attr_hidden_style</span> = <span class="ruby-identifier">:visible</span>
+86:       <span class="ruby-keyword kw">end</span>
+87:       <span class="ruby-identifier">attr_hidden_attributes</span>.<span class="ruby-identifier">concat</span> <span class="ruby-identifier">attributes</span>
+88:     <span class="ruby-keyword kw">end</span>
 </pre>
           </div>
         </div>
       </div>
 
-      <div id="method-M000007" class="method-detail">
-        <a name="M000007"></a>
+      <div id="method-M000008" class="method-detail">
+        <a name="M000008"></a>
 
         <div class="method-heading">
           <span class="method-name">attr_visible_and_accessible</span><span class="method-args">(*attributes)</span>
@@ -337,8 +352,38 @@ in all serializations.
       
         <div class="method-description">
           <p>
-Alias for <a href="ClassMethods.html#M000004">attr_available</a>
+Alias for <a href="ClassMethods.html#M000005">attr_available</a>
 </p>
+        </div>
+      </div>
+
+      <div id="method-M000003" class="method-detail">
+        <a name="M000003"></a>
+
+        <div class="method-heading">
+          <a href="#M000003" class="method-signature">
+          <span class="method-name">serialize_method</span><span class="method-args">(*method_names)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Mark a set of methods to always be included during serialization.
+</p>
+<p>
+This has the effect of automatically using <tt>:methods =&gt;
+method_names</tt> in all serializations.
+</p>
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000003-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000003-source">
+<pre>
+    <span class="ruby-comment cmt"># File lib/attr_hidden.rb, line 93</span>
+93:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">serialize_method</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">method_names</span>)
+94:       <span class="ruby-identifier">attr_hidden_methods</span>.<span class="ruby-identifier">concat</span> <span class="ruby-identifier">method_names</span>
+95:     <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
         </div>
       </div>
 

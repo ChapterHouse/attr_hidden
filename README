@@ -11,6 +11,10 @@ been done in the controller on an individual method basis. This is time consumin
 Instead of relying on the controller to add protection, this plugin takes its cues from attr_protected and attr_accessible and moves the
 responsibility down into the model itself.
 
+Methods can also be included in the serialization by using serialize_method
+
+Additionally, these restrictions and included methods will continue to be maintained even during associational includes during serialization.
+
 Example
 =======
 
